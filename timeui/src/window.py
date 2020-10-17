@@ -159,8 +159,8 @@ class Window(QMainWindow):
             self.memlabel.setText(s)
     #override
     def resizeEvent(self, e: QtGui.QResizeEvent) -> None:
-        if not self.isMaximized() and e.oldSize().isValid():
-            self.oldsize = e.oldSize()
+        #if not self.isMaximized() and e.oldSize().isValid():
+        #    self.oldsize = e.oldSize()
         return super().resizeEvent(e)
 
     def maxmin(self):
