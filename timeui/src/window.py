@@ -38,7 +38,7 @@ class Window(QMainWindow):
         fnt.setBold(True)
         self.timelabel.setFont(fnt)
         vbody.addWidget(self.timelabel,alignment=Qt.AlignCenter,stretch=3)
-        fnt1 = QFont("Arial",fnt.pointSize()-5)
+        fnt1 = QFont("Arial",fnt.pointSize()-20)
         self.datelabel = QPushButton(self.root)
         self.datelabel.setFont(fnt1)
         self.datelabel.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
@@ -78,12 +78,12 @@ class Window(QMainWindow):
             margin: 0px 0px 0px 0px;
             padding: 0px 0px 0px 0px;
             border-style:solid;
-            border-width: 1px;
-            border-color: red;
+            border-width: 0px;
+            border-color: gray;
             background-color: #404040;
         }
         QLabel,QPushButton,QSlider{
-            background-color: gray;
+            
         }
         QPushButton{
         }
@@ -117,7 +117,8 @@ class Window(QMainWindow):
             self.memlabel.setText(s)
     #override
     def resizeEvent(self, e: QtGui.QResizeEvent) -> None:
-        if not self.isMaximized():
+        if not self.isMaximized() and e.oldSize().isValid():
+            print(e.oldSize())
             self.oldsize = e.oldSize()
 
     def maxmin(self):
@@ -126,7 +127,6 @@ class Window(QMainWindow):
         if not self.isMaximized() :
             self.setWindowState(ws | QWindow.FullScreen)
         else:
-            print(self.oldsize)
             #self.setWindowState(ws ^ QWindow.FullScreen)
             self.resize(self.oldsize)
             
