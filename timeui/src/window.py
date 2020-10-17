@@ -98,7 +98,7 @@ class Window(QMainWindow):
             margin: 0px 0px 0px 0px;
             padding: 0px 0px 0px 0px;
             border-style:solid;
-            border-width: 1px;
+            border-width: 0px;
             border-color: gray;
             background-color: #101010;
         }
@@ -117,7 +117,17 @@ class Window(QMainWindow):
             color: #E0E0E0;
             font-family: Arial;
         }
-        QSlider{
+        QSlider::groove:horizontal {
+            border: 0px solid #565a5e;
+            height: 5pt;
+            margin: 0px;
+        }
+        QSlider::handle:horizontal {
+            background: #7aa7c7;
+            border: 0px solid #565a5e;
+            width: 8px;
+            height: 4px;
+            border-radius: 0px;
         }
         ''')
     
