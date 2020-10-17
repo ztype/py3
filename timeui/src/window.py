@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QLayout, QMainWindow, QApplication
 from PyQt5.QtWidgets import QHBoxLayout,QVBoxLayout,QSizePolicy
 from PyQt5.QtWidgets import QLabel,QWidget,QPushButton,QSlider
 from PyQt5.QtCore import QDateTime,QDate,QTime, Qt,QTimer
-from PyQt5.QtGui import QCursor, QWindow,QPalette
+from PyQt5.QtGui import QCursor, QFont, QWindow,QPalette
 from PyQt5 import QtGui
 
 import pi.device as pi 
@@ -32,15 +32,15 @@ class Window(QMainWindow):
         hhead.setSpacing(0)
         vbox.addLayout(hhead)
         # center layout
-        expand = QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
-        expand.setHorizontalStretch(1)
-        expand.setVerticalStretch(2)
         vbody = QVBoxLayout()
         self.timelabel = QPushButton(self.root)
-        self.timelabel.setSizePolicy(expand)
-
+        fnt = QFont("Arial",80)
+        fnt.setBold(True)
+        self.timelabel.setFont(fnt)
         vbody.addWidget(self.timelabel,alignment=Qt.AlignCenter,stretch=3)
+        fnt1 = QFont("Arial",fnt.pointSize()-5)
         self.datelabel = QPushButton(self.root)
+        self.datelabel.setFont(fnt1)
         self.datelabel.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
         vbody.addWidget(self.datelabel,alignment=Qt.AlignCenter,stretch=2)
 
