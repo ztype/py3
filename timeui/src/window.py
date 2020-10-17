@@ -119,14 +119,15 @@ class Window(QMainWindow):
         }
         QSlider::groove:horizontal {
             border: 0px solid #565a5e;
-            height: 5pt;
+            height: 40px;
             margin: 0px;
+            padding: 0px;
         }
         QSlider::handle:horizontal {
             background: #7aa7c7;
-            border: 0px solid #565a5e;
-            width: 8px;
-            height: 4px;
+            border: 1px solid #565a5e;
+            width: 20px;
+            height: 40px;
             border-radius: 0px;
         }
         ''')
