@@ -74,7 +74,8 @@ class app():
         self.scale = tk.Scale(tls, from_=1, to=100, resolution=1,
                         orient=tk.HORIZONTAL, show=0, command=self.onSlide,
                         highlightbackground="black", highlightcolor="black",
-                        bg="black", activebackground="black",fg="black",troughcolor="black",
+                        bg="black", activebackground="black",fg="black",
+                        troughcolor="black",
                         width=int(sh/6))
                         '''
         self.scale = tk.Label(tls,bg="gray", height=int(sh/80))
@@ -90,7 +91,8 @@ class app():
         self.time_label.bind("<Button-1>", self.onTimeClick)
         self.update_time()
 
-        self.date_label = tk.Label(mls, bg="black", fg=mid_fg_color, borderwidth=1, relief="solid")
+        self.date_label = tk.Label(mls, bg="black", fg=mid_fg_color, 
+        borderwidth=1, relief="solid")
         self.update_date()
 
         self.time_label.pack(side=tk.TOP)
