@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*- 
 import sys,os
 from PyQt5 import QtWidgets
-from window import Window
+from src.window import Window
 import signal
 
 def checkEvn():

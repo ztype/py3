@@ -1,9 +1,12 @@
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QMainWindow, QApplication
-from PyQt5.QtWidgets import QHBoxLayout,QVBoxLayout
-from PyQt5.QtWidgets import QLabel,QWidget,QPushButton
-from PyQt5.QtCore import QDateTime,QDate
+from PyQt5.QtWidgets import QLayout, QMainWindow, QApplication
+from PyQt5.QtWidgets import QHBoxLayout,QVBoxLayout,QSizePolicy
+from PyQt5.QtWidgets import QLabel,QWidget,QPushButton,QSlider
+from PyQt5.QtCore import QDateTime,QDate,QTime, Qt,QTimer
 from PyQt5.QtGui import QCursor, QWindow,QPalette
+
+import pi.device as pi 
+import psutil
 
 class Window(QMainWindow):
     def __init__(self):
@@ -13,26 +16,103 @@ class Window(QMainWindow):
         self.setObjectName("mainwindow")
         self.resize(300,200)
         self.setWindowTitle("timer")
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        #self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         
         self.setupUI()
     def setupUI(self):
         # layout
         vbox = QVBoxLayout()
-        vbox.setObjectName("mainlayout")
         self.root = QWidget(self)
-        
-        # center widget
-
+        self.root.setObjectName("main")
+        # head layout
+        hhead = QVBoxLayout()
+        self.brightslider = QSlider(self.root,orientation=Qt.Horizontal)
+        hhead.addWidget(self.brightslider)
+        hhead.setSpacing(0)
+        vbox.addLayout(hhead)
+        # center layout
+        expand = QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
+        expand.setHorizontalStretch(1)
+        expand.setVerticalStretch(2)
+        vbody = QVBoxLayout()
         self.timelabel = QPushButton(self.root)
-        self.timelabel.setText("now")
-        self.timelabel.setBackgroundRole(QPalete.)
-        vbox.addWidget(self.timelabel)
+        self.timelabel.setSizePolicy(expand)
+
+        vbody.addWidget(self.timelabel,alignment=Qt.AlignCenter,stretch=3)
+        self.datelabel = QPushButton(self.root)
+        self.datelabel.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
+        vbody.addWidget(self.datelabel,alignment=Qt.AlignCenter,stretch=2)
+        
+        vbody.setSpacing(0)
+        vbody.setContentsMargins(0,0,0,0)
+        vbox.addLayout(vbody,stretch=1)
+        # foot layout
+        hfoot = QHBoxLayout()
+        self.memlabel = QLabel(self.root)
+        self.updateMemInfo()
+        hfoot.addWidget(self.memlabel)
+        self.cpulabel = QLabel(self.root)
+        self.updateCpuInfo()
+        hfoot.addWidget(self.cpulabel)
+        self.iplabel = QLabel(self.root)
+        self.updateIpAddress()
+        hfoot.addWidget(self.iplabel)
+        hfoot.setSpacing(0)
+        vbox.addLayout(hfoot)
+        vbox.setSpacing(0)
+        vbox.setContentsMargins(0,0,0,0)
         # set layout
         self.root.setLayout(vbox)
         self.setCentralWidget(self.root)
         
         self.timelabel.clicked.connect(self.maxmin)
+        self.updateDatetime()
+        self.allWithBorder()
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.updateUi)
+        self.timer.start(1000)
+    def allWithBorder(self):
+        self.setStyleSheet('''
+        *{
+            margin: 0px 0px 0px 0px;
+            padding: 0px 0px 0px 0px;
+            border-style:solid;
+            border-width: 1px;
+            border-color: red;
+        }
+        QLabel,QPushButton,QSlider{
+            background-color: gray;
+        }
+        QPushButton{
+        }
+        QSlider{
+        }
+        ''')
+    
+    def updateUi(self):
+        self.updateDatetime()
+        pass
+    def updateDatetime(self):
+        now = QTime().currentTime().toString(QtCore.Qt.ISODate)
+        self.timelabel.setText(now)
+        date = QDate().currentDate().toString(QtCore.Qt.ISODate)
+        self.datelabel.setText(date)
+    def updateIpAddress(self):
+        ips = pi.get_wan_ip_address()
+        ipstr = ",".join(ips)
+        ipstr = "IP:"+ipstr
+        self.iplabel.setText(ipstr)
+    def updateCpuInfo(self):
+        per = psutil.cpu_percent()
+        cpu = pi.get_cpu_temp()
+        cpustr = "CPU:{:.1f}%-{:.2f}℃".format(per, cpu)
+        self.cpulabel.setText(cpustr)
+    def updateMemInfo(self):
+        if hasattr(self,"memlabel") and self.memlabel is not None:
+            mems = psutil.virtual_memory()
+            usedg = mems.used/(1024*1024*1024)
+            s = "MEM:{:.2f}G-{:.1f}%".format(usedg, mems.percent)
+            self.memlabel.setText(s)
     def maxmin(self):
         ws = self.windowState()
         self.setWindowState(ws)
