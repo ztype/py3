@@ -12,6 +12,7 @@ import psutil
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.piscreen = pi.PiGpioScreen()
         self.init()
     def init(self):
         self.setObjectName("mainwindow")
@@ -28,21 +29,24 @@ class Window(QMainWindow):
         # head layout
         hhead = QVBoxLayout()
         self.brightslider = QSlider(self.root,orientation=Qt.Horizontal)
+        self.brightslider.setMinimum(1)
+        self.brightslider.setMaximum(100)
+        self.brightslider.valueChanged.connect(self.onSlide)
         hhead.addWidget(self.brightslider)
         hhead.setSpacing(0)
         vbox.addLayout(hhead)
         # center layout
         vbody = QVBoxLayout()
         self.timelabel = QPushButton(self.root)
-        fnt = QFont("Arial",80)
-        fnt.setBold(True)
-        self.timelabel.setFont(fnt)
-        vbody.addWidget(self.timelabel,alignment=Qt.AlignCenter,stretch=3)
-        fnt1 = QFont("Arial",fnt.pointSize()-20)
+        self.timelabel.setObjectName("time")
+        vbody.addStretch(1)
+        vbody.addWidget(self.timelabel,alignment=Qt.AlignHCenter,stretch=2)
         self.datelabel = QPushButton(self.root)
-        self.datelabel.setFont(fnt1)
+        self.datelabel.setObjectName("date")
         self.datelabel.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
-        vbody.addWidget(self.datelabel,alignment=Qt.AlignCenter,stretch=2)
+        vbody.addSpacing(5)
+        vbody.addWidget(self.datelabel,alignment=Qt.AlignHCenter,stretch=2)
+        vbody.addStretch(1)
 
         vbody.setSpacing(0)
         vbody.setContentsMargins(0,0,0,0)
@@ -72,20 +76,46 @@ class Window(QMainWindow):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.updateUi)
         self.timer.start(1000)
+        #cursor
+        self.ctimer = QTimer(self)
+        self.ctimer.timeout.connect(self.hideCursor)
+        self.ctimer.start(5000)
+    def hideCursor(self):
+        #print("cursor hide")
+        self.setCursor(Qt.BlankCursor)
+    def eventFilter(self, source, event):
+        if event.type() == QtCore.QEvent.MouseMove:
+            #print(event.pos())
+            self.setCursor(Qt.ArrowCursor)
+            self.ctimer.start(5000)
+        return super().eventFilter(source, event)
+    def onSlide(self):
+        v = self.brightslider.value()
+        self.piscreen.set_brightness(v)
     def allWithBorder(self):
         self.setStyleSheet('''
         *{
             margin: 0px 0px 0px 0px;
             padding: 0px 0px 0px 0px;
             border-style:solid;
-            border-width: 0px;
+            border-width: 1px;
             border-color: gray;
-            background-color: #404040;
+            background-color: #101010;
         }
         QLabel,QPushButton,QSlider{
             
         }
         QPushButton{
+            color: #EDEDED;
+            font-family: Arial;
+            font-size: 80pt;
+        }
+        QPushButton#date{
+            font-size: 60pt;
+        }
+        QLabel{
+            color: #E0E0E0;
+            font-family: Arial;
         }
         QSlider{
         }
@@ -93,7 +123,8 @@ class Window(QMainWindow):
     
     def updateUi(self):
         self.updateDatetime()
-        pass
+        self.updateMemInfo()
+        self.updateCpuInfo()
     def updateDatetime(self):
         now = QTime().currentTime().toString(QtCore.Qt.ISODate)
         self.timelabel.setText(now)
@@ -118,8 +149,8 @@ class Window(QMainWindow):
     #override
     def resizeEvent(self, e: QtGui.QResizeEvent) -> None:
         if not self.isMaximized() and e.oldSize().isValid():
-            print(e.oldSize())
             self.oldsize = e.oldSize()
+        return super().resizeEvent(e)
 
     def maxmin(self):
         ws = self.windowState()

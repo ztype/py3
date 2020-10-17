@@ -15,6 +15,7 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
 
     window = Window()
+    app.installEventFilter(window)
     window.show()
     
     sys.exit(app.exec_())
