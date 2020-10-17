@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QHBoxLayout,QVBoxLayout,QSizePolicy
 from PyQt5.QtWidgets import QLabel,QWidget,QPushButton,QSlider
 from PyQt5.QtCore import QDateTime,QDate,QTime, Qt,QTimer
 from PyQt5.QtGui import QCursor, QWindow,QPalette
+from PyQt5 import QtGui
 
 import pi.device as pi 
 import psutil
@@ -14,10 +15,10 @@ class Window(QMainWindow):
         self.init()
     def init(self):
         self.setObjectName("mainwindow")
-        self.resize(300,200)
+        self.oldsize = QtCore.QSize(300,200)
+        self.resize(self.oldsize)
         self.setWindowTitle("timer")
         #self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        
         self.setupUI()
     def setupUI(self):
         # layout
@@ -42,7 +43,7 @@ class Window(QMainWindow):
         self.datelabel = QPushButton(self.root)
         self.datelabel.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
         vbody.addWidget(self.datelabel,alignment=Qt.AlignCenter,stretch=2)
-        
+
         vbody.setSpacing(0)
         vbody.setContentsMargins(0,0,0,0)
         vbox.addLayout(vbody,stretch=1)
@@ -79,6 +80,7 @@ class Window(QMainWindow):
             border-style:solid;
             border-width: 1px;
             border-color: red;
+            background-color: #404040;
         }
         QLabel,QPushButton,QSlider{
             background-color: gray;
@@ -113,12 +115,20 @@ class Window(QMainWindow):
             usedg = mems.used/(1024*1024*1024)
             s = "MEM:{:.2f}G-{:.1f}%".format(usedg, mems.percent)
             self.memlabel.setText(s)
+    #override
+    def resizeEvent(self, e: QtGui.QResizeEvent) -> None:
+        if not self.isMaximized():
+            self.oldsize = e.oldSize()
+
     def maxmin(self):
         ws = self.windowState()
         self.setWindowState(ws)
         if not self.isMaximized() :
             self.setWindowState(ws | QWindow.FullScreen)
         else:
-            self.setWindowState(ws ^ QWindow.FullScreen)
+            print(self.oldsize)
+            #self.setWindowState(ws ^ QWindow.FullScreen)
+            self.resize(self.oldsize)
+            
         
         
